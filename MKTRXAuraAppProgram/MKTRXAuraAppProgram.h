@@ -15,6 +15,7 @@
 #define PI 3.1415926
 #define COLOR_STEP 1
 #define SLEEP_FOR_TRANSITION 2
+#define SLEEP_FOR_BETWEEN_TRANSITION 1000
 
 // Global Variables:
 HINSTANCE hInst;
