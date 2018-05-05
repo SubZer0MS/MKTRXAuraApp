@@ -13,11 +13,14 @@
 #define DEFAULT_PORT "27015"
 
 #define PI 3.1415926
+#define COLOR_STEP 1
+#define SLEEP_FOR_TRANSITION 2
 
 // Global Variables:
 HINSTANCE hInst;
 NOTIFYICONDATA niData;
 HMODULE hLib;
+DWORD gColor;
 
 SOCKET ListenSocket = INVALID_SOCKET;
 SOCKET ClientSocket = INVALID_SOCKET;

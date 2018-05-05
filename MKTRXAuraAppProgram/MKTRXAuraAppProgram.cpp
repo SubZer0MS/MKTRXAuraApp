@@ -187,6 +187,9 @@ DWORD WINAPI ListenForConnections(LPVOID lpParam)
     // No longer need server socket
     closesocket(ListenSocket);
 
+    gColor = 0x000000;
+    ChangeAuraColor(gColor);
+
     // Receive until the peer shuts down the connection
     do
     {
@@ -245,42 +248,76 @@ cleanup:
 
 VOID ChangeAuraColor(DWORD colorVal)
 {
+    BYTE pR = (BYTE)((gColor & (0xFF << (2 * 8))) >> 2 * 8);
+    BYTE pG = (BYTE)((gColor & (0xFF << (1 * 8))) >> 1 * 8);
+    BYTE pB = (BYTE)((gColor & (0xFF << (0 * 8))) >> 0 * 8);
+
+    BYTE R = (BYTE)((colorVal & (0xFF << (2 * 8))) >> 2 * 8);
+    BYTE G = (BYTE)((colorVal & (0xFF << (1 * 8))) >> 1 * 8);
+    BYTE B = (BYTE)((colorVal & (0xFF << (0 * 8))) >> 0 * 8);
+
     DWORD count = 0;
     
     // Motherboard
 
-    //count = EnumerateMbController(NULL, 0);
+    //count = EnumerateMbController(NULL, 0); // comment this out because it seems to be stopping the whole thing if the MG does not have AURA
 
-    //if (count > 0)
-    //{
-    //    BYTE* color = nullptr;
-    //    MbLightControl* mbLightCtrl = new MbLightControl[count];
-    //    
-    //    EnumerateMbController(mbLightCtrl, count);
+    if (count > 0)
+    {
+        BYTE* color = nullptr;
+        MbLightControl* mbLightCtrl = new MbLightControl[count];
+        
+        EnumerateMbController(mbLightCtrl, count);
 
-    //    for (DWORD i = 0; i < count; i++)
-    //    {
-    //        SetMbMode(mbLightCtrl[i], 1);
+        for (DWORD i = 0; i < count; i++)
+        {
+            SetMbMode(mbLightCtrl[i], 1);
 
-    //        DWORD t = GetMbLedCount(mbLightCtrl[i]);
+            DWORD t = GetMbLedCount(mbLightCtrl[i]);
 
-    //        color = new BYTE[t * 3];
-    //        ZeroMemory(color, t * 3);
+            color = new BYTE[t * 3];
+            ZeroMemory(color, t * 3);
 
-    //        for (size_t s = 0; s < t; s += 3)
-    //        {
-    //            color[s] = (BYTE)((colorVal & (0xFF << (2 * 8))) >> 2 * 8);
-    //            color[s + 1] = (BYTE)((colorVal & (0xFF << (1 * 8))) >> 1 * 8);
-    //            color[s + 2] = (BYTE)((colorVal & (0xFF << (0 * 8))) >> 0 * 8);
-    //        }
+            for (size_t s = 0; s < t; s += 3)
+            {
+                color[s] = pR;
+                color[s + 1] = pG;
+                color[s + 2] = pB;
 
-    //        SetMbColor(mbLightCtrl[i], color, t * 3);
+                while (color[s] > 0x00 || color[s + 1] > 0x00 || color[s + 2] > 0x00)
+                {
+                    color[s] -= color[s] > 0x00 ? COLOR_STEP : 0;
+                    color[s + 1] -= color[s + 1] > 0x00 ? COLOR_STEP : 0;
+                    color[s + 2] -= color[s + 2] > 0x00 ? COLOR_STEP : 0;
 
-    //        delete[] color;
-    //    }
+                    SetMbColor(mbLightCtrl[i], color, t * 3);
 
-    //    delete[] mbLightCtrl;
-    //}
+                    Sleep(SLEEP_FOR_TRANSITION);
+                }
+
+                while (color[s] < R || color[s + 1] < G || color[s + 2] < B)
+                {
+                    color[s] += color[s] < R ? COLOR_STEP : 0;
+                    color[s + 1] += color[s + 1] < G ? COLOR_STEP : 0;
+                    color[s + 2] += color[s + 2] < B ? COLOR_STEP : 0;
+
+                    SetMbColor(mbLightCtrl[i], color, t * 3);
+
+                    Sleep(SLEEP_FOR_TRANSITION);
+                }
+
+                color[s] = R;
+                color[s + 1] = G;
+                color[s + 2] = B;
+
+                SetMbColor(mbLightCtrl[i], color, t * 3);
+            }
+
+            delete[] color;
+        }
+
+        delete[] mbLightCtrl;
+    }
 
     // GPU
 
@@ -289,33 +326,61 @@ VOID ChangeAuraColor(DWORD colorVal)
     if (count > 0)
     {
         BYTE* color = nullptr;
-        GPULightControl* GpuLightCtrl = new GPULightControl[count];
+        GPULightControl* gpuLightCtrl = new GPULightControl[count];
 
-        EnumerateGPU(GpuLightCtrl, count);
+        EnumerateGPU(gpuLightCtrl, count);
 
         for (DWORD i = 0; i < count; i++)
         {
-            SetGPUMode(GpuLightCtrl[i], 1);
+            SetGPUMode(gpuLightCtrl[i], 1);
             
-            DWORD t = GetGPULedCount(GpuLightCtrl[i]);
+            DWORD t = GetGPULedCount(gpuLightCtrl[i]);
             
             color = new BYTE[t * 3];
             ZeroMemory(color, t * 3);
             
             for (size_t s = 0; s < t; s += 3)
             {
-                color[s] = (BYTE)((colorVal & (0xFF << (2 * 8))) >> 2 * 8);
-                color[s + 1] = (BYTE)((colorVal & (0xFF << (1 * 8))) >> 1 * 8);
-                color[s + 2] = (BYTE)((colorVal & (0xFF << (0 * 8))) >> 0 * 8);
-            }
+                color[s] = pR;
+                color[s + 1] = pG;
+                color[s + 2] = pB;
 
-            SetGPUColor(GpuLightCtrl[i], color, t * 3);
+                while (color[s] > 0x00 || color[s + 1] > 0x00 || color[s + 2] > 0x00)
+                {
+                    color[s] -= color[s] > 0x00 ? COLOR_STEP : 0;
+                    color[s + 1] -= color[s + 1] > 0x00 ? COLOR_STEP : 0;
+                    color[s + 2] -= color[s + 2] > 0x00 ? COLOR_STEP : 0;
+
+                    SetGPUColor(gpuLightCtrl[i], color, t * 3);
+
+                    Sleep(SLEEP_FOR_TRANSITION);
+                }
+
+                while (color[s] < R || color[s + 1] < G || color[s + 2] < B)
+                {
+                    color[s] += color[s] < R ? COLOR_STEP : 0;
+                    color[s + 1] += color[s + 1] < G ? COLOR_STEP : 0;
+                    color[s + 2] += color[s + 2] < B ? COLOR_STEP : 0;
+
+                    SetGPUColor(gpuLightCtrl[i], color, t * 3);
+
+                    Sleep(SLEEP_FOR_TRANSITION);
+                }
+
+                color[s] = R;
+                color[s + 1] = G;
+                color[s + 2] = B;
+
+                SetGPUColor(gpuLightCtrl[i], color, t * 3);
+            }
 
             delete[] color;
         }
         
-        delete[] GpuLightCtrl;
+        delete[] gpuLightCtrl;
     }
+
+    gColor = colorVal;
 }
 
 BOOL OnInitDialog(HWND hWnd)
