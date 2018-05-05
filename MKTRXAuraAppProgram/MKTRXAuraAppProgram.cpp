@@ -155,8 +155,7 @@ DWORD WINAPI ListenForConnections(LPVOID lpParam)
     if (ListenSocket == INVALID_SOCKET) {
         printf("socket failed with error: %ld\n", WSAGetLastError());
         freeaddrinfo(result);
-        WSACleanup();
-        return 1;
+        goto cleanup;
     }
 
     // Setup the TCP listening socket
@@ -165,8 +164,7 @@ DWORD WINAPI ListenForConnections(LPVOID lpParam)
         printf("bind failed with error: %d\n", WSAGetLastError());
         freeaddrinfo(result);
         closesocket(ListenSocket);
-        WSACleanup();
-        return 1;
+        goto cleanup;
     }
 
     freeaddrinfo(result);
@@ -175,8 +173,7 @@ DWORD WINAPI ListenForConnections(LPVOID lpParam)
     if (iResult == SOCKET_ERROR) {
         printf("listen failed with error: %d\n", WSAGetLastError());
         closesocket(ListenSocket);
-        WSACleanup();
-        return 1;
+        goto cleanup;
     }
 
     // Accept a client socket
@@ -184,8 +181,7 @@ DWORD WINAPI ListenForConnections(LPVOID lpParam)
     if (ClientSocket == INVALID_SOCKET) {
         printf("accept failed with error: %d\n", WSAGetLastError());
         closesocket(ListenSocket);
-        WSACleanup();
-        return 1;
+        goto cleanup;
     }
 
     // No longer need server socket
@@ -194,7 +190,6 @@ DWORD WINAPI ListenForConnections(LPVOID lpParam)
     // Receive until the peer shuts down the connection
     do
     {
-
         iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
         if (iResult > 0)
         {
@@ -212,10 +207,14 @@ DWORD WINAPI ListenForConnections(LPVOID lpParam)
                 ChangeAuraColor(0x0000FF);
                 break;
 
+            case '4':
+                ChangeAuraColor(0x000000);
+                break;
+
             default:
+                ChangeAuraColor(0x000000);
                 break;
             }
-
         }
         else if (iResult == 0)
         {
@@ -224,9 +223,7 @@ DWORD WINAPI ListenForConnections(LPVOID lpParam)
         else
         {
             printf("recv failed with error: %d\n", WSAGetLastError());
-            closesocket(ClientSocket);
-            WSACleanup();
-            return 1;
+            goto cleanup;
         }
 
     } while (iResult > 0);
@@ -235,11 +232,10 @@ DWORD WINAPI ListenForConnections(LPVOID lpParam)
     iResult = shutdown(ClientSocket, SD_SEND);
     if (iResult == SOCKET_ERROR) {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
-        closesocket(ClientSocket);
-        WSACleanup();
-        return 1;
+        goto cleanup;
     }
 
+cleanup:
     // cleanup
     closesocket(ClientSocket);
     WSACleanup();
@@ -249,19 +245,18 @@ DWORD WINAPI ListenForConnections(LPVOID lpParam)
 
 VOID ChangeAuraColor(DWORD colorVal)
 {
-    // dsadsa
-
     DWORD count = 0;
     
     // Motherboard
 
     //count = EnumerateMbController(NULL, 0);
-    //MbLightControl* mbLightCtrl = new MbLightControl[count];
-    //EnumerateMbController(mbLightCtrl, count);
 
     //if (count > 0)
     //{
     //    BYTE* color = nullptr;
+    //    MbLightControl* mbLightCtrl = new MbLightControl[count];
+    //    
+    //    EnumerateMbController(mbLightCtrl, count);
 
     //    for (DWORD i = 0; i < count; i++)
     //    {
@@ -280,13 +275,12 @@ VOID ChangeAuraColor(DWORD colorVal)
     //        }
 
     //        SetMbColor(mbLightCtrl[i], color, t * 3);
+
+    //        delete[] color;
     //    }
 
-    //    delete[] color;
+    //    delete[] mbLightCtrl;
     //}
-
-    //delete[] mbLightCtrl;
-
 
     // GPU
 
@@ -295,16 +289,15 @@ VOID ChangeAuraColor(DWORD colorVal)
     if (count > 0)
     {
         BYTE* color = nullptr;
-
         GPULightControl* GpuLightCtrl = new GPULightControl[count];
 
         EnumerateGPU(GpuLightCtrl, count);
 
         for (DWORD i = 0; i < count; i++)
         {
-            DWORD t = GetGPULedCount(GpuLightCtrl[i]);
-
             SetGPUMode(GpuLightCtrl[i], 1);
+            
+            DWORD t = GetGPULedCount(GpuLightCtrl[i]);
             
             color = new BYTE[t * 3];
             ZeroMemory(color, t * 3);
@@ -317,9 +310,11 @@ VOID ChangeAuraColor(DWORD colorVal)
             }
 
             SetGPUColor(GpuLightCtrl[i], color, t * 3);
-        }
 
-        delete[] color;
+            delete[] color;
+        }
+        
+        delete[] GpuLightCtrl;
     }
 }
 

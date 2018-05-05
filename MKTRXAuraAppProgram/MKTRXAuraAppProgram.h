@@ -9,7 +9,7 @@
 #define SWM_HIDE	WM_APP + 2	// hide the window
 #define SWM_EXIT	WM_APP + 3	// close the window
 
-#define DEFAULT_BUFLEN 1
+#define DEFAULT_BUFLEN 255
 #define DEFAULT_PORT "27015"
 
 #define PI 3.1415926
