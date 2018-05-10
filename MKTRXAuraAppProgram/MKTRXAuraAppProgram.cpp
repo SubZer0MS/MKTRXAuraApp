@@ -358,6 +358,8 @@ VOID ChangeAuraColor(DWORD colorVal)
                     Sleep(SLEEP_FOR_TRANSITION);
                 }
 
+                Sleep(SLEEP_FOR_BETWEEN_TRANSITION);
+
                 while (color[s] < R || color[s + 1] < G || color[s + 2] < B)
                 {
                     color[s] += color[s] < R ? COLOR_STEP : 0;
