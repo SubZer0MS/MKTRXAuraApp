@@ -260,7 +260,7 @@ VOID ChangeAuraColor(DWORD colorVal)
     
     // Motherboard
 
-    //count = EnumerateMbController(NULL, 0); // comment this out because it seems to be stopping the whole thing if the MG does not have AURA
+    //count = EnumerateMbController(NULL, 0); // comment this out because it seems to be stopping the whole thing if the MB does not have AURA
 
     if (count > 0)
     {
