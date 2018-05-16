@@ -169,6 +169,15 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
+    <None Include="dependencies\AURA_SDK.dll" />
+    <None Include="dependencies\ClaymoreProtocol.dll" />
+    <None Include="dependencies\EVOLVE SYNC Dll.dll" />
+    <None Include="dependencies\LED_DLL_forMB.dll" />
+    <None Include="dependencies\RogNewmouseProtocol.dll" />
+    <None Include="dependencies\SPATHA HID Library C++.dll" />
+    <None Include="dependencies\SPATHA SYNC Dll.dll" />
+    <None Include="dependencies\Vender.dll" />
+    <None Include="dependencies\VGA_Extra.dll" />
     <None Include="MKTRXHWInfoAndAuraCommand.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
