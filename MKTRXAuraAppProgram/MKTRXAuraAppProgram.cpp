@@ -199,15 +199,15 @@ DWORD WINAPI ListenForConnections(LPVOID lpParam)
             switch (*recvbuf)
             {
             case '1':
-                ChangeAuraColor(0xFF0000);
-                break;
-
-            case '2':
                 ChangeAuraColor(0x00FF00);
                 break;
 
-            case '3':
+            case '2':
                 ChangeAuraColor(0x0000FF);
+                break;
+
+            case '3':
+                ChangeAuraColor(0xFF0000);
                 break;
 
             case '4':
