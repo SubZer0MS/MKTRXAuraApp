@@ -105,6 +105,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     (FARPROC&)SetRogMouseColor = GetProcAddress(hLib, "SetRogMouseColor");
     (FARPROC&)RogMouseLedCount = GetProcAddress(hLib, "RogMouseLedCount");
 
+    (FARPROC&)EnumerateDram = GetProcAddress(hLib, "EnumerateDram");
+    (FARPROC&)SetDramMode = GetProcAddress(hLib, "SetDramMode");
+    (FARPROC&)SetDramColor = GetProcAddress(hLib, "SetDramColor");
+    (FARPROC&)GetDramLedCount = GetProcAddress(hLib, "GetDramLedCount");
+
     HANDLE hThread = CreateThread(NULL, 0, ListenForConnections, NULL, 0, NULL);
 
     if (hThread == NULL)
