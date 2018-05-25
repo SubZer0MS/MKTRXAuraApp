@@ -13,9 +13,9 @@
 #define DEFAULT_PORT "27015"
 
 #define PI 3.1415926
-#define COLOR_STEP 1
+#define COLOR_STEP 3
 #define SLEEP_FOR_TRANSITION 2
-#define SLEEP_FOR_BETWEEN_TRANSITION 1000
+#define SLEEP_FOR_BETWEEN_TRANSITION 500
 
 // Global Variables:
 HINSTANCE hInst;
@@ -39,6 +39,7 @@ typedef void* MbLightControl;
 typedef void* GPULightControl;
 typedef void* ClaymoreKeyboardLightControl;
 typedef void* RogMouseLightControl;
+typedef void* DramLightControl;
 
 typedef DWORD(WINAPI* EnumerateMbControllerFunc)(MbLightControl handles[], DWORD size);
 typedef DWORD(WINAPI* SetMbModeFunc) (MbLightControl handle, DWORD mode);
@@ -61,6 +62,11 @@ typedef DWORD(WINAPI* SetRogMouseModeFunc) (RogMouseLightControl handle, DWORD m
 typedef DWORD(WINAPI* SetRogMouseColorFunc) (RogMouseLightControl handle, BYTE* color, DWORD size);
 typedef DWORD(WINAPI* RogMouseLedCountFunc)(RogMouseLightControl handle);
 
+typedef DWORD(WINAPI* EnumerateDramFunc)(DramLightControl handles[], DWORD size);
+typedef DWORD(WINAPI* SetDramModeFunc) (DramLightControl handle, DWORD mode);
+typedef DWORD(WINAPI* SetDramColorFunc) (DramLightControl handle, BYTE* color, DWORD size);
+typedef DWORD(WINAPI* GetDramLedCountFunc)(DramLightControl handle);
+
 EnumerateMbControllerFunc EnumerateMbController;
 SetMbModeFunc SetMbMode;
 SetMbColorFunc SetMbColor;
@@ -81,3 +87,8 @@ CreateRogMouseFunc CreateRogMouse;
 SetRogMouseModeFunc SetRogMouseMode;
 SetRogMouseColorFunc SetRogMouseColor;
 RogMouseLedCountFunc RogMouseLedCount;
+
+EnumerateDramFunc EnumerateDram;
+SetDramModeFunc SetDramMode;
+SetDramColorFunc SetDramColor;
+GetDramLedCountFunc GetDramLedCount;

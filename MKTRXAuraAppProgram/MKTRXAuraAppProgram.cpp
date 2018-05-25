@@ -260,7 +260,7 @@ VOID ChangeAuraColor(DWORD colorVal)
     
     // Motherboard
 
-    //count = EnumerateMbController(NULL, 0); // comment this out because it seems to be stopping the whole thing if the MB does not have AURA
+    count = EnumerateMbController(NULL, 0); // comment this out because it seems to be stopping the whole thing if the MB does not have AURA
 
     if (count > 0)
     {
@@ -382,6 +382,67 @@ VOID ChangeAuraColor(DWORD colorVal)
         }
         
         delete[] gpuLightCtrl;
+    }
+
+    count = EnumerateDram(NULL, 0);
+
+    if (count > 0)
+    {
+        BYTE* color = nullptr;
+        DramLightControl* dramLightCtrl = new DramLightControl[count];
+
+        EnumerateDram(dramLightCtrl, count);
+
+        for (DWORD i = 0; i < count; i++)
+        {
+            SetDramMode(dramLightCtrl[i], 1);
+
+            DWORD t = GetDramLedCount(dramLightCtrl[i]);
+
+            color = new BYTE[t * 3];
+            ZeroMemory(color, t * 3);
+
+            for (size_t s = 0; s < t; s += 3)
+            {
+                color[s] = pR;
+                color[s + 1] = pG;
+                color[s + 2] = pB;
+
+                while (color[s] > 0x00 || color[s + 1] > 0x00 || color[s + 2] > 0x00)
+                {
+                    color[s] -= color[s] > 0x00 ? COLOR_STEP : 0;
+                    color[s + 1] -= color[s + 1] > 0x00 ? COLOR_STEP : 0;
+                    color[s + 2] -= color[s + 2] > 0x00 ? COLOR_STEP : 0;
+
+                    SetDramColor(dramLightCtrl[i], color, t * 3);
+
+                    Sleep(SLEEP_FOR_TRANSITION);
+                }
+
+                Sleep(SLEEP_FOR_BETWEEN_TRANSITION);
+
+                while (color[s] < R || color[s + 1] < G || color[s + 2] < B)
+                {
+                    color[s] += color[s] < R ? COLOR_STEP : 0;
+                    color[s + 1] += color[s + 1] < G ? COLOR_STEP : 0;
+                    color[s + 2] += color[s + 2] < B ? COLOR_STEP : 0;
+
+                    SetDramColor(dramLightCtrl[i], color, t * 3);
+
+                    Sleep(SLEEP_FOR_TRANSITION);
+                }
+
+                color[s] = R;
+                color[s + 1] = G;
+                color[s + 2] = B;
+
+                SetDramColor(dramLightCtrl[i], color, t * 3);
+            }
+
+            delete[] color;
+        }
+
+        delete[] dramLightCtrl;
     }
 
     gColor = colorVal;
